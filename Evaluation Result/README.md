@@ -21,4 +21,4 @@ from row 1 to row 9:
 
 
 from column 1 t0 column 7:
-RRE, stdRRE, RTE, stdRTE, SuccessRate, InlierRatio, AverageIterations
+RRE, stdRRE, RTE, stdRTE, success rate, inlier ratio, average iterations
