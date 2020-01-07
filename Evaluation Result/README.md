@@ -10,14 +10,14 @@ Each method has two parts: interetest point detection and descriptor
 
 
 from row 1 to row 9:
-0+0
-0+1
-0+2
-1+0
-1+1
+0+0;
+0+1;
+0+2;
+1+0;
+1+1;
 ...
-2+1
-2+2
+2+1;
+2+2;
 
 
 from column 1 t0 column 7:
