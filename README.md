@@ -27,14 +27,14 @@ For the newers, I suggest you to wait for my formal release.
 
 
 # Usage
-1. Basic enviornments for python3 and keras. No worries. I was a newer at that time, which is also part of the reason of why the code's quality is low.
-2. Dirs.py to modify dictionaries.
-3. BatchProcess.py to do batch processings on projecting PC to spherical rings and getting keypts by using multi-thread.
-4. Voxel.py to project PC into multi-solution voxel model and basic functions about multi-resolution model.
-5. SphericalRing.py to do basic function about spherical ring model, importantly for getting keypts by using trained model and cupy.
-6. You can try Match.py to see some demos using trained models
-7. PoseEstimation.py to generate initial odometry.
-8. RefinePoses.py to generate refined odometry based on extended interest points and ground normals. (The code for generating ground normals is currently commented. Uncomment it if you want to use.)
+1. Basic enviornments for python3 and Keras. No worries. See `requirements.txt`. I was a newer at that time, which is also part of the reason of why the code's quality is low.
+2. `Dirs.py` to modify dictionaries.
+3. `BatchProcess.py` to do batch processings on projecting PC to spherical rings and getting keypts by using multi-thread.
+4. `Voxel.py` to project PC into multi-solution voxel model and basic functions about multi-resolution model.
+5. `SphericalRing.py` to do basic function about spherical ring model, importantly for getting keypts by using trained model and cupy.
+6. You can try `Match.py` to see some demos using trained models
+7. `PoseEstimation.py` to generate initial odometry.
+8. `RefinePoses.py` to generate refined odometry based on extended interest points and ground normals. (The code for generating ground normals is currently commented. Uncomment it if you want to use.)
 9. There are some other test codes I tried to find other solutions. You may get some new ideas I hope. I will remove them in the formal release.
 
 
