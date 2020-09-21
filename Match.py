@@ -323,10 +323,8 @@ if __name__ == "__main__":
         
         if bLoadKeyPtsFromFile == False:        
             RespondLayer = load_model('SphericalRingPCRespondLayer.h5')
-            RespondLayer2 = load_model('SphericalRingPCRespondLayer2.h5')
-            RespondLayer3 = load_model('SphericalRingPCRespondLayer3.h5')
-            KeyPts0, KeyPixels0, PlanarPts0 = GetKeyPtsFromRawFileName(FileName0, RespondLayer, RespondLayer2, RespondLayer3)
-            KeyPts1, KeyPixels1, PlanarPts1 = GetKeyPtsFromRawFileName(FileName1, RespondLayer, RespondLayer2, RespondLayer3)
+            KeyPts0, KeyPixels0, PlanarPts0 = GetKeyPtsFromRawFileName(FileName0, RespondLayer)
+            KeyPts1, KeyPixels1, PlanarPts1 = GetKeyPtsFromRawFileName(FileName1, RespondLayer)
             
         KeyPts0, PatchesList0 = GetPatchesList(KeyPts0, AllVoxels00, AllVoxels01, AllVoxels02)
         KeyPts1, PatchesList1 = GetPatchesList(KeyPts1, AllVoxels10, AllVoxels11, AllVoxels12)            

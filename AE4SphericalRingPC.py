@@ -141,9 +141,6 @@ if bTrain == 1:
     
     autoencoder = Model(inputs=x, outputs=r)
     RespondLayer = Model(x, conv1_1_2)
-    RespondLayer2 = Model(x, conv1_2)
-#    RespondLayer3 = Model(x, conv1_3)
-#    RespondLayer4 = Model(x, conv1_4)
     
     
 #    autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
@@ -172,15 +169,9 @@ if bTrain == 1:
     # save model
     autoencoder.save('AE4SphericalRingPC.h5')
     RespondLayer.save('SphericalRingPCRespondLayer.h5')
-    RespondLayer2.save('SphericalRingPCRespondLayer2.h5')
-#    RespondLayer3.save('SphericalRingPCRespondLayer3.h5')
-#    RespondLayer4.save('SphericalRingPCRespondLayer4.h5')
 else:
     autoencoder = load_model('AE4SphericalRingPC.h5')
     RespondLayer = load_model('SphericalRingPCRespondLayer.h5')
-    # RespondLayer2 = load_model('SphericalRingPCRespondLayer2.h5')
-#    RespondLayer3 = load_model('SphericalRingPCRespondLayer3.h5')
-#    RespondLayer4 = load_model('SphericalRingPCRespondLayer4.h5')
 
 
 def GetKeyPixelsAndKeyPts(EncodedModel, SphericalImage):

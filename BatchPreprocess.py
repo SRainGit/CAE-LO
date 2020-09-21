@@ -89,7 +89,7 @@ def BatchCorrectPC(strSequence, Frames, iProc,  iThread, flags4MultiProc):
     flags4MultiProc[iThread] = 1
     
     
-def GetAllRespondImgs(strSequence, subFrames, RespondLayer, RespondLayer2, RespondLayer3, RespondLayer4):
+def GetAllRespondImgs(strSequence, subFrames, RespondLayer):
     DataFolderName = 'SphericalRing'
     SphericalRingDir = os.path.join(strDataBaseDir, strSequence, DataFolderName)
     nFrames = subFrames.shape[0]
@@ -109,22 +109,15 @@ def GetAllRespondImgs(strSequence, subFrames, RespondLayer, RespondLayer2, Respo
     
     # predict
     RespondImgs = np.array(RespondLayer.predict(SphericalRings), dtype=np.float32)
-    RespondImgs2 = np.array(RespondLayer2.predict(SphericalRings), dtype=np.float32)
-    RespondImgs3 = np.array(RespondLayer3.predict(SphericalRings), dtype=np.float32)
-    RespondImgs4 = np.array(RespondLayer4.predict(SphericalRings), dtype=np.float32)
     print('finished predicting, extracting keyPts...')
     
     RespondsList = []
     RespondsList.append(RespondImgs)
-    RespondsList.append(RespondImgs2)
-    RespondsList.append(RespondImgs3)
-    RespondsList.append(RespondImgs4)
     
     return SphericalRings, GridCounters, RespondsList
 
 
-def BatchGetKeyPts(strSequence, FrameList, SphericalRings, GridCounters, RespondImgs, iProc, iThread, flags4MultiProc,
-                   RespondImgs2, RespondImgs3, RespondImgs4):
+def BatchGetKeyPts(strSequence, FrameList, SphericalRings, GridCounters, RespondImgs, iProc, iThread, flags4MultiProc):
     KeyPtFolderName = 'KeyPts'
     FeaturesFolderName = 'Features'
     rawDataList = GetFileList(strDataBaseDir + strSequence)
@@ -139,14 +132,11 @@ def BatchGetKeyPts(strSequence, FrameList, SphericalRings, GridCounters, Respond
         SphericalRing = SphericalRings[iData,:,:,:]
         GridCounter = GridCounters[iData,:,:]
         RespondImg = RespondImgs[iData,:,:,:]
-        RespondImg2 = RespondImgs2[iData,:,:,:]
-        RespondImg3 = RespondImgs3[iData,:,:,:]
-#        RespondImg4 = RespondImgs4[iData,:,:,:]
         
         # extract key points
-        KeyPts, KeyPixels, PlanarPts = GetKeyPtsByAE(SphericalRing, GridCounter, RespondImg, RespondImg2, RespondImg3)        
+        KeyPts, KeyPixels, PlanarPts = GetKeyPtsByAE(SphericalRing, GridCounter, RespondImg)        
 #        # extract features of the key points
-#        Features = GetFeaturesFromSphericalRing(RespondImg, RespondImg2, RespondImg3, RespondImg4, KeyPixels)
+#        Features = GetFeaturesFromSphericalRing(RespondImg, KeyPixels)
 #        Weights = np.ones((KeyPts.shape[0],1),dtype=np.float32)
         
         # extend key points for the final pose refine
@@ -188,9 +178,6 @@ def BatchPorcess(iOption):
         import keras
         from keras.models import load_model
         RespondLayer = load_model('SphericalRingPCRespondLayer.h5')
-        RespondLayer2 = load_model('SphericalRingPCRespondLayer2.h5')
-        RespondLayer3 = load_model('SphericalRingPCRespondLayer3.h5')
-        RespondLayer4 = load_model('SphericalRingPCRespondLayer4.h5')
     
     for iSequence in range(0, 11, 1):
         strSequence=str(iSequence).zfill(2)
@@ -225,27 +212,17 @@ def BatchPorcess(iOption):
                 flags4MultiProc.append(0)
                 
             if iOption == 2:
-                SphericalRings, GridCounters, RespondsList = GetAllRespondImgs(strSequence, subFrames, 
-                                                                              RespondLayer, RespondLayer2, RespondLayer3, RespondLayer4)
+                SphericalRings, GridCounters, RespondsList = GetAllRespondImgs(strSequence, subFrames, RespondLayer)
                 RespondImgs = RespondsList[0]
-                RespondImgs2 = RespondsList[1]
-                RespondImgs3 = RespondsList[2]
-                RespondImgs4 = RespondsList[3]
                 
                 SphericalRingLists = []
                 GridCounterLists = []
                 RespondImgLists = []
-                RespondImgLists2 = []
-                RespondImgLists3 = []
-                RespondImgLists4 = []
                 for iList in range(nThreads):
                     slices = slice(iList,nSubFrames,nThreads)
                     SphericalRingLists.append(SphericalRings[slices,:,:,:])
                     GridCounterLists.append(GridCounters[slices,:,:])
                     RespondImgLists.append(RespondImgs[slices,:,:])
-                    RespondImgLists2.append(RespondImgs2[slices,:,:])
-                    RespondImgLists3.append(RespondImgs3[slices,:,:])
-                    RespondImgLists4.append(RespondImgs4[slices,:,:])
             
     #        BatchProjection(rawDataLists[0], 0, flags4MultiProc)
             for iThread in range(nThreads):
@@ -253,11 +230,9 @@ def BatchPorcess(iOption):
                     t = Process(target = BatchProjection, args=(strSequence, FrameLists[iThread], iProc,  iThread, flags4MultiProc))
                 if iOption == 2:
                     t = Process(target = BatchGetKeyPts, args=(strSequence, FrameLists[iThread], SphericalRingLists[iThread], GridCounterLists[iThread], 
-                                                             RespondImgLists[iThread], iProc, iThread, flags4MultiProc,
-                                                             RespondImgLists2[iThread], RespondImgLists3[iThread], RespondImgLists4[iThread]))
+                                                             RespondImgLists[iThread], iProc, iThread, flags4MultiProc))
 #                BatchGetKeyPts(strSequence, FrameLists[iThread], SphericalRingLists[iThread], GridCounterLists[iThread], 
-#                                                             RespondImgLists[iThread], iProc, iThread, flags4MultiProc,
-#                                                             RespondImgLists2[iThread], RespondImgLists3[iThread], RespondImgLists4[iThread])
+#                                                             RespondImgLists[iThread], iProc, iThread, flags4MultiProc)
                 if iOption == 3:
                     t = Process(target = BatchCorrectPC, args=(strSequence, FrameLists[iThread], iProc,  iThread, flags4MultiProc))
                 t.start()
@@ -289,24 +264,18 @@ if __name__ == "__main__":
     import keras
     from keras.models import load_model
     RespondLayer = load_model('SphericalRingPCRespondLayer.h5')
-    RespondLayer2 = load_model('SphericalRingPCRespondLayer2.h5')
-    RespondLayer3 = load_model('SphericalRingPCRespondLayer3.h5')
     
     
     # prediction
     SphericalRing_ = SphericalRing[0:nLines, 0:ImgW-CropWidth_SphericalRing, Channels4AE]
     SphericalRing_ = SphericalRing_.reshape(1, SphericalRing_.shape[0], SphericalRing_.shape[1], SphericalRing_.shape[2])
     RespondImg = RespondLayer.predict(SphericalRing_)
-    RespondImg2 = RespondLayer2.predict(SphericalRing_)
-    RespondImg3 = RespondLayer3.predict(SphericalRing_)
     RespondImg = RespondImg.reshape(RespondImg.shape[1],RespondImg.shape[2],RespondImg.shape[3])
-    RespondImg2 = RespondImg2.reshape(RespondImg2.shape[1],RespondImg2.shape[2],RespondImg2.shape[3])
-    RespondImg3 = RespondImg3.reshape(RespondImg3.shape[1],RespondImg3.shape[2],RespondImg3.shape[3])
     t2=time()
     print(round(t2-t1, 2), 's')
     
         
-    KeyPts, KeyPixels, PlanarPts, DiffImg = GetKeyPtsByAE(SphericalRing, GridCounter, RespondImg, RespondImg2, RespondImg3)
+    KeyPts, KeyPixels, PlanarPts, DiffImg = GetKeyPtsByAE(SphericalRing, GridCounter, RespondImg)
     RangeImage[KeyPixels[:,0],KeyPixels[:,1]] =  np.max(RangeImage)
     
     ExtendedKeyPts = ExtendKeyPtsInShpericalRing(SphericalRing, GridCounter, KeyPixels)

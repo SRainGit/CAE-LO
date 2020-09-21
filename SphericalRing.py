@@ -117,7 +117,7 @@ def LocateKeyPixels(NormImage, WindowRadius, AvlPixelList):
     
     
 
-def GetKeyPtsByAE(SphericalRing, GridCounter, RespondImg, RespondImg2, RespondImg3):
+def GetKeyPtsByAE(SphericalRing, GridCounter, RespondImg):
     WindowSize = 5
     WindowRadius = int(WindowSize/2)
     WindowRadius_ = WindowRadius + 1
@@ -319,22 +319,6 @@ def ExtendKeyPtsInShpericalRing(SphericalRing, GridCounter, KeyPixels):
     return ExtendedKeyPts
 
 
-def GetFeaturesFromSphericalRing(RespondImg, RespondImg2, RespondImg3, RespondImg4, KeyPixels):
-    KeyPixels2 = np.array(KeyPixels*0.5, dtype=np.int)
-    KeyPixels3 = np.array(KeyPixels*0.25, dtype=np.int)
-    KeyPixels4 = np.array(KeyPixels*0.125, dtype=np.int)
-    features = RespondImg[KeyPixels[:,0],KeyPixels[:,1],:]
-    features2 = RespondImg2[KeyPixels2[:,0],KeyPixels2[:,1],:]
-    features3 = RespondImg3[KeyPixels3[:,0],KeyPixels3[:,1],:]
-    features4 = RespondImg4[KeyPixels4[:,0],KeyPixels4[:,1],:]    
-    features = normalize(features, norm='l2', axis=1, copy=True, return_norm=False)
-    features2 = normalize(features2, norm='l2', axis=1, copy=True, return_norm=False)*(features2.shape[1]/features.shape[1])
-    features3 = normalize(features3, norm='l2', axis=1, copy=True, return_norm=False)*(features3.shape[1]/features.shape[1])
-    features4 = normalize(features4, norm='l2', axis=1, copy=True, return_norm=False)*(features4.shape[1]/features.shape[1])
-#    Features = np.c_[features, features2, features3, features4]
-    Features = np.c_[features, features2, features3]
-    return Features
-    
 
 
 def ProjectPC2RangeImage(PC):
@@ -404,7 +388,7 @@ def SphericalRing2PCWithNorm(Image, NormMap):
     return PC, Norms
 
 
-def GetKeyPtsFromRawFileName(rawFileFullPath, RespondLayer, RespondLayer2, RespondLayer3):    
+def GetKeyPtsFromRawFileName(rawFileFullPath, RespondLayer):    
     DataFolderName = 'SphericalRing'
     
     baseDir=os.path.dirname(os.path.dirname(rawFileFullPath))
@@ -423,19 +407,13 @@ def GetKeyPtsFromRawFileName(rawFileFullPath, RespondLayer, RespondLayer2, Respo
     SphericalRing_ = SphericalRing[0:nLines, 0:ImgW-CropWidth_SphericalRing,Channels4AE]
     SphericalRing_ = SphericalRing_.reshape(1, SphericalRing_.shape[0], SphericalRing_.shape[1], SphericalRing_.shape[2])
     RespondImg = RespondLayer.predict(SphericalRing_)
-    # RespondImg2 = RespondLayer2.predict(SphericalRing_)
-    # RespondImg3 = RespondLayer3.predict(SphericalRing_)
     RespondImg = np.squeeze(RespondImg)
-    # RespondImg2 = RespondImg2.reshape(RespondImg2.shape[1],RespondImg2.shape[2],RespondImg2.shape[3])
-    # RespondImg3 = RespondImg3.reshape(RespondImg3.shape[1],RespondImg3.shape[2],RespondImg3.shape[3])
     t2=time()
     print(round(t1-t0, 4), 's, data loading time')
     print(round(t2-t1, 4), 's, predicting time')
     
     
-    RespondImg2 = []
-    RespondImg3 = []
-    KeyPts, KeyPixels, PlanarPts = GetKeyPtsByAE(SphericalRing, GridCounter, RespondImg, RespondImg2, RespondImg3)
+    KeyPts, KeyPixels, PlanarPts = GetKeyPtsByAE(SphericalRing, GridCounter, RespondImg)
     
     return KeyPts, KeyPixels, PlanarPts
 
