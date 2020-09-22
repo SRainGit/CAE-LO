@@ -179,7 +179,7 @@ def BatchPorcess(iOption):
         from keras.models import load_model
         RespondLayer = load_model('SphericalRingPCRespondLayer.h5')
     
-    for iSequence in range(0, 11, 1):
+    for iSequence in range(9, 11, 1):
         strSequence=str(iSequence).zfill(2)
         dirSequence=str(os.path.join(strDataBaseDir, strSequence))
         rawDataList = GetFileList(dirSequence)
@@ -250,7 +250,7 @@ if __name__ == "__main__":
     import multiprocessing as mp
     mp.set_start_method('spawn')
     
-    BatchPorcess(2)
+    # BatchPorcess(2)
        
     
     #----------------(for test at first) Visualization of Voxelmodel---------------------------------------------
@@ -280,7 +280,7 @@ if __name__ == "__main__":
     print(round(t2-t1, 2), 's')
     
         
-    KeyPts, KeyPixels, PlanarPts, DiffImg = GetKeyPtsByAE(SphericalRing, GridCounter, RespondImg)
+    KeyPts, KeyPixels, PlanarPts = GetKeyPtsByAE(SphericalRing, GridCounter, RespondImg)
     RangeImage[KeyPixels[:,0],KeyPixels[:,1]] =  np.max(RangeImage)
     
     ExtendedKeyPts = ExtendKeyPtsInShpericalRing(SphericalRing, GridCounter, KeyPixels)
@@ -342,9 +342,6 @@ if __name__ == "__main__":
     mlab.view(270, 0, 1800, [0,0,0])
     
     
-    fig = mlab.figure(bgcolor=(0, 0, 0), size=(1640, 500))
-    mlab.imshow(DiffImg)
-    mlab.view(270, 0, 1800, [0,0,0])
     
     mlab.show()
     

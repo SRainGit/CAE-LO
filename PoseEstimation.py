@@ -24,7 +24,7 @@ from Transformations import *
 
 
 def GeneratorThreadProc(iThread, iKeyPtSource, DataDir, iFrame, listPreProcData, flags4MultiProc):
-    fileFullPath = str(DataDir+str(iFrame).zfill(6)+'.bin')
+    fileFullPath = os.path.join(DataDir, str(iFrame).zfill(6)+'.bin')
     KeyPts, AllVoxels0, AllVoxels1, AllVoxels2 = LoadVoxelModelAndKeyPts(fileFullPath)
     
     if iKeyPtSource != 0:
@@ -53,7 +53,7 @@ def KeyPtsDataGenerator(isLoadFeaturesFromFile, iKeyPtSource, DataDir, listKeyPt
         fileList = os.listdir(RawDataDir)
         nFrames = len(fileList)
         for iFrame in range(nFrames):
-            featuresFileFullPath = str(featuresBaseDir+'/'+str(iFrame).zfill(6)+'.bin.mat')
+            featuresFileFullPath = os.path.join(featuresBaseDir, str(iFrame).zfill(6)+'.bin.mat')
             mat = io.loadmat(featuresFileFullPath)
             KeyPts = mat['KeyPts']
             Features = mat['Features']
@@ -76,7 +76,7 @@ def KeyPtsDataGenerator(isLoadFeaturesFromFile, iKeyPtSource, DataDir, listKeyPt
     nFrames = len(fileList)
     
     # multi threads for extracting data from files in parallel
-    nThreads = 3
+    nThreads = 4
     manager = Manager()
     while nPreparedFrames[0] + nThreads <= nFrames:
         listPreProcData = manager.list([])
@@ -195,8 +195,8 @@ if __name__ == "__main__":
         for iSequence in listSequence:
             # prepare data path
             strSequence=str(iSequence).zfill(2)
-            RawDataDir = str(strDataBaseDir + strSequence + '/velodyne/')
-            calibFileFullPath = str(strCalibDataDir + strSequence + '/calib_.txt')
+            RawDataDir = os.path.join(strDataBaseDir, strSequence, 'velodyne')
+            calibFileFullPath = os.path.join(strCalibDataDir, strSequence, 'calib_.txt')
             
             # extract calib data
             calib=np.loadtxt(calibFileFullPath)
@@ -279,21 +279,21 @@ if __name__ == "__main__":
             # save the features and match pairs data
             if isLoadFeaturesFromFile == False:
                 if iKeyPtSource == 0:
-                    FeatruesDataDir = str(strDataBaseDir+strSequence+'/Features/')
+                    FeatruesDataDir = os.path.join(strDataBaseDir, strSequence, 'Features')
                 elif iKeyPtSource == 1:
-                    FeatruesDataDir = str(strDataBaseDir+strSequence+'/Features-3DFeatNet/')
+                    FeatruesDataDir = os.path.join(strDataBaseDir, strSequence, 'Features-3DFeatNet')
                 elif iKeyPtSource == 2:
-                    FeatruesDataDir = str(strDataBaseDir+strSequence+'/Features-USIP/')        
+                    FeatruesDataDir = os.path.join(strDataBaseDir, strSequence, 'Features-USIP')        
                 
                 isFolder = os.path.exists(FeatruesDataDir)
                 if not isFolder:
                     os.makedirs(FeatruesDataDir)
                 for iFrame in range(nFrames):
                     KeyPts, Features, Weights = listKeyPtsData[iFrame]
-                    fileFullPath = str(FeatruesDataDir+str(iFrame).zfill(6)+'.bin.mat')
+                    fileFullPath = os.path.join(FeatruesDataDir, str(iFrame).zfill(6)+'.bin.mat')
                     io.savemat(fileFullPath, {'KeyPts':KeyPts, 'Features':Features, 'Weights':Weights})
             
-            InliersDataDir = str(strDataBaseDir+strSequence+'/InliersIdx/')
+            InliersDataDir = os.path.join(strDataBaseDir,strSequence,'InliersIdx')
             isFolder = os.path.exists(InliersDataDir)
             if not isFolder:
                 os.makedirs(InliersDataDir)
@@ -303,7 +303,7 @@ if __name__ == "__main__":
                     iFrame1 = inliersData[iFrame][1]
                     inliersIdx0 = inliersData[iFrame][2]        
                     inliersIdx1 = inliersData[iFrame][3]
-                    fileFullPath = str(InliersDataDir+str(iFrame0).zfill(6)+'-'+str(iFrame1).zfill(6)+'.bin.mat')
+                    fileFullPath = os.path.join(InliersDataDir, str(iFrame0).zfill(6)+'-'+str(iFrame1).zfill(6)+'.bin.mat')
                     io.savemat(fileFullPath, {'iFrame0':iFrame0, 'iFrame1':iFrame1, 
                                               'inliersIdx0':inliersIdx0, 'inliersIdx1':inliersIdx1})
             
