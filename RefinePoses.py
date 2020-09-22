@@ -527,7 +527,7 @@ iShowMatchingResult = 0
 iGroundTruth = 1
 iEstimatedOdometry = 2
 iDejump = 0
-iRefineOdometry = 2
+iRefineOdometry = 0
 iCloseLoop = 0
 
 ErrorAnalysis = 1
@@ -536,14 +536,14 @@ AllErrorTs = np.zeros((1,1), dtype=np.float32)
 
 #   0, 2     2, 5     5, 8    8, 11    11, 14    14, 18     18, 20     20, 22
 # prepare data path
-for iSequence in range(0, 11, 1):
+for iSequence in range(0, 5, 1):
     strSequence = str(iSequence).zfill(2)
-    RawDataDir = str(strDataBaseDir + strSequence + '/velodyne/')
-    KeyPtsDir = str(strDataBaseDir + strSequence + '/KeyPts/')
-    FeaturesDataDir = str(strDataBaseDir + strSequence + '/Features/')
-    PairsDir = str(strDataBaseDir + strSequence + '/InliersIdx/')
-    RefinementDataDir = str(strDataBaseDir + strSequence + '/RefinenmentData/')
-    calibFileFullPath = str(strCalibDataDir + strSequence + '/calib_.txt')
+    RawDataDir = os.path.join(strDataBaseDir, strSequence, 'velodyne')+'/'
+    KeyPtsDir = os.path.join(strDataBaseDir, strSequence, 'KeyPts')+'/'
+    FeaturesDataDir = os.path.join(strDataBaseDir, strSequence, 'Features')+'/'
+    PairsDir = os.path.join(strDataBaseDir, strSequence,  'InliersIdx')+'/'
+    RefinementDataDir = os.path.join(strDataBaseDir, strSequence, 'RefinenmentData')+'/'
+    calibFileFullPath = os.path.join(strCalibDataDir, strSequence, 'calib_.txt')
     
     # extract calib data
     calib=np.loadtxt(calibFileFullPath)
@@ -556,18 +556,18 @@ for iSequence in range(0, 11, 1):
     
     # 0. load ground truth poes and estimated poses
     if iGroundTruth > 0:
-        poses = np.loadtxt(strGroundTruthPosesDir+strSequence+'.txt')
+        poses = np.loadtxt(os.path.join(strGroundTruthPosesDir,strSequence+'.txt'))
     if iEstimatedOdometry > 0:
-        poses_ = np.loadtxt(strEstimatedPosesDir+strSequence+'.txt')
+        poses_ = np.loadtxt(os.path.join(strEstimatedPosesDir,strSequence+'.txt'))
 #        poses_ = np.loadtxt(strEstimatedPosesDir+'1_2-0_'+strSequence+'.txt')
     
     
     # 1. remove jump poses
     if iDejump == 1:
         poses__ = FixJumpPoses(poses_)
-        np.savetxt(str(strDejumpyedPosesDir+strSequence+'.txt'), poses__)
+        np.savetxt(os.path.join(strDejumpyedPosesDir,strSequence+'.txt'), poses__)
     elif iDejump == 2:
-        poses__ = np.loadtxt(strDejumpyedPosesDir+strSequence+'.txt')
+        poses__ = np.loadtxt(os.path.join(strDejumpyedPosesDir,strSequence+'.txt'))
     
     
     # 2. refine odometry using extended keyPts and ICP
@@ -576,10 +576,10 @@ for iSequence in range(0, 11, 1):
         if iGroundTruth > 0:
             debugInfo.append(poses)
         poses___, aDebugInfo = RefineOdometry(strSequence, poses__, Tr, iOption=1, debugInfo=debugInfo, iStartFrame = 0)
-        np.savetxt((strRefinedPosesDir+strSequence+'.txt'), poses___)
+        np.savetxt(os.path.join(strRefinedPosesDir,strSequence+'.txt'), poses___)
     elif iRefineOdometry == 2:
-        poses___ = np.loadtxt(strRefinedPosesDir+strSequence+'.txt')
-        RefinementDataDir = str(strDataBaseDir + strSequence + '/RefinenmentData/')
+        poses___ = np.loadtxt(os.path.join(strRefinedPosesDir,strSequence+'.txt'))
+        RefinementDataDir = os.path.join(strDataBaseDir, strSequence, 'RefinenmentData')
         mat = io.loadmat(RefinementDataDir+'DebugInfo.mat')
         aDebugInfo = mat['aDebugInfo']
     
@@ -587,9 +587,9 @@ for iSequence in range(0, 11, 1):
     # 3. close loop
     if iCloseLoop == 1:
         poses____, AllCloseParis = CloseLoopPipeline(strSequence, poses___, Tr, aDebugInfo)
-        np.savetxt((strClosedPosesDir+strSequence+'.txt'), poses____)            
+        np.savetxt(os.path.join(strClosedPosesDir,strSequence+'.txt'), poses____)            
     elif iCloseLoop == 2:
-        poses____ = np.loadtxt(strClosedPosesDir+strSequence+'.txt')
+        poses____ = np.loadtxt(os.path.join(strClosedPosesDir,strSequence+'.txt'))
     
     
     # extract trajectories
@@ -682,7 +682,7 @@ for iSequence in range(0, 11, 1):
         
     # the error analysis for the refinement
     if iRefineOdometry > 0:
-        io.savemat(RefinementDataDir+'DebugInfo.mat', {'aDebugInfo':aDebugInfo})
+        io.savemat(os.path.join(RefinementDataDir,'DebugInfo.mat'), {'aDebugInfo':aDebugInfo})
 
 
 AllErrorAngles = np.delete(AllErrorAngles, 0, axis=0)

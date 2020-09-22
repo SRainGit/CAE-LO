@@ -122,7 +122,7 @@ def KeyPtsDataGenerator(isLoadFeaturesFromFile, iKeyPtSource, DataDir, listKeyPt
     # if have tails
     while nPreparedFrames[0] < nFrames:
         iFrame = nPreparedFrames[0]
-        fileFullPath = str(DataDir+str(iFrame).zfill(6)+'.bin')
+        fileFullPath = os.path.join(DataDir, str(iFrame).zfill(6)+'.bin')
         KeyPts, AllVoxels0, AllVoxels1, AllVoxels2 = LoadVoxelModelAndKeyPts(fileFullPath)
             
         if iKeyPtSource != 0:
@@ -191,7 +191,7 @@ if __name__ == "__main__":
         #listSequence = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17 ,18, 19, 20, 21]
         listSequence = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     #    listSequence = [11, 12, 13, 14, 15, 16, 17 ,18, 19, 20, 21]
-        # listSequence = [5]
+        # listSequence = [4]
         for iSequence in listSequence:
             # prepare data path
             strSequence=str(iSequence).zfill(2)
@@ -241,11 +241,12 @@ if __name__ == "__main__":
             for iFrame0 in range(nFrames-1):
                 iFrame1 = iFrame0 + 1
                 while nPreparedFrames[0]-1 < iFrame1:
-                    sleep(0.5)  # no need to wait too long
+                    print('waiting for frame', nPreparedFrames[0])
+                    sleep(0.5)
                     
                 # get relative pose between iFrame0 and iFrame1
                 print('\n')
-                print(strSequence+':'+str(str(nFrames)+':'+str(iFrame0)+'-'+str(iFrame1)))
+                print(strSequence+':'+str(str(nFrames-1)+':'+str(iFrame0)+'-'+str(iFrame1)))
                 t1 = time()
                 relativeR, relativeT, isSuccess, nInliers, residualThreshold = GetRelativePoseBetween2Frames(iFrame0, iFrame1)
                 
@@ -274,7 +275,7 @@ if __name__ == "__main__":
             
             
             # save the poses data
-            np.savetxt(str(strEstimatedPosesDir+strSequence+'.txt'),poses)
+            np.savetxt(os.path.join(strEstimatedPosesDir,strSequence+'.txt'), poses)
             
             # save the features and match pairs data
             if isLoadFeaturesFromFile == False:
