@@ -120,7 +120,7 @@ def GetAllRespondImgs(strSequence, subFrames, RespondLayer):
 def BatchGetKeyPts(strSequence, FrameList, SphericalRings, GridCounters, RespondImgs, iProc, iThread, flags4MultiProc):
     KeyPtFolderName = 'KeyPts'
     FeaturesFolderName = 'Features'
-    rawDataList = GetFileList(strDataBaseDir + strSequence)
+    rawDataList = GetFileList(os.path.join(strDataBaseDir, strSequence))
     rawDataList = [oneFile for oneFile in rawDataList if oneFile[(len(oneFile)-3):len(oneFile)]=='bin']
     nFramesInSequence = len(rawDataList)
     
@@ -173,7 +173,7 @@ def BatchPorcess(iOption):
         import tensorflow as tf
         from keras.backend.tensorflow_backend import set_session
         config = tf.ConfigProto()
-        config.gpu_options.per_process_gpu_memory_fraction = 0.2
+        config.gpu_options.per_process_gpu_memory_fraction = 0.4
         set_session(tf.Session(config=config))
         import keras
         from keras.models import load_model
@@ -181,7 +181,7 @@ def BatchPorcess(iOption):
     
     for iSequence in range(0, 11, 1):
         strSequence=str(iSequence).zfill(2)
-        dirSequence=str(strDataBaseDir + strSequence)
+        dirSequence=str(os.path.join(strDataBaseDir, strSequence))
         rawDataList = GetFileList(dirSequence)
         rawDataList = [oneFile for oneFile in rawDataList if oneFile[(len(oneFile)-3):len(oneFile)]=='bin']
         nFiles = len(rawDataList)
@@ -204,7 +204,7 @@ def BatchPorcess(iOption):
             nSubFrames = subFrames.shape[0]
             
             flags4MultiProc = manager.list([])
-            nThreads = 1
+            nThreads = 4
             FrameLists = []
             for iList in range(nThreads):
                 slices = slice(iList,nSubFrames,nThreads)
@@ -230,9 +230,9 @@ def BatchPorcess(iOption):
                     t = Process(target = BatchProjection, args=(strSequence, FrameLists[iThread], iProc,  iThread, flags4MultiProc))
                 if iOption == 2:
                     t = Process(target = BatchGetKeyPts, args=(strSequence, FrameLists[iThread], SphericalRingLists[iThread], GridCounterLists[iThread], 
-                                                             RespondImgLists[iThread], iProc, iThread, flags4MultiProc))
-#                BatchGetKeyPts(strSequence, FrameLists[iThread], SphericalRingLists[iThread], GridCounterLists[iThread], 
-#                                                             RespondImgLists[iThread], iProc, iThread, flags4MultiProc)
+                                                              RespondImgLists[iThread], iProc, iThread, flags4MultiProc))
+                    # BatchGetKeyPts(strSequence, FrameLists[iThread], SphericalRingLists[iThread], GridCounterLists[iThread], 
+                    #                                             RespondImgLists[iThread], iProc, iThread, flags4MultiProc)
                 if iOption == 3:
                     t = Process(target = BatchCorrectPC, args=(strSequence, FrameLists[iThread], iProc,  iThread, flags4MultiProc))
                 t.start()
@@ -245,12 +245,17 @@ def BatchPorcess(iOption):
 
 if __name__ == "__main__":
     freeze_support()
+    
+    # for cupy multi-thread processing
+    import multiprocessing as mp
+    mp.set_start_method('spawn')
+    
     BatchPorcess(2)
        
     
     #----------------(for test at first) Visualization of Voxelmodel---------------------------------------------
         
-    PC = np.fromfile(strDataBaseDir + '00/velodyne/000500.bin', dtype=np.float32, count=-1)
+    PC = np.fromfile(strDataBaseDir + '/00/velodyne/000500.bin', dtype=np.float32, count=-1)
     PC = PC.reshape([-1,4])
     t0=time()
     

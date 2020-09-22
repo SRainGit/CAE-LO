@@ -283,8 +283,7 @@ def SolveRelativePose(OriPC0, OriCodes0, Weights0, OriPC1, OriCodes1, Weights1):
     return R, T, isSuccess, inliersIdx0, inliersIdx1, residualThreshold
    
    
-if __name__ == "__main__": 
-    
+if __name__ == "__main__":     
     bLoadKeyPtsFromFile = False
     # bLoadKeyPtsFromFile = True
     
@@ -296,7 +295,7 @@ if __name__ == "__main__":
     iFrame0 = 498
     iFrameStep = 1
     iFrame1 = iFrame0 + iFrameStep
-    DataDir = strDataBaseDir + strSequence + '/velodyne/'
+    DataDir = os.path.join(strDataBaseDir, strSequence, 'velodyne/')
     FileName0 = DataDir + str(iFrame0).zfill(6)+'.bin'
     FileName1 = DataDir + str(iFrame1).zfill(6)+'.bin'
     
@@ -354,8 +353,8 @@ if __name__ == "__main__":
     iSequence = int(strSequence)
     if iSequence < 12:
         # get errors    
-        poses = np.loadtxt(strGroundTruthPosesDir+strSequence+'.txt')
-        calibFileFullPath = str(strCalibDataDir + strSequence + '/calib_.txt')
+        poses = np.loadtxt(os.path.join(strGroundTruthPosesDir, strSequence+'.txt'))
+        calibFileFullPath = str(os.path.join(strCalibDataDir, strSequence + '/calib_.txt'))
         calib=np.loadtxt(calibFileFullPath)
         Tr=np.array(calib[4,:].reshape(3,4),dtype=np.float32)
         R_Tr=Tr[:,0:3]

@@ -124,9 +124,8 @@ def GetKeyPtsByAE(SphericalRing, GridCounter, RespondImg):
     radiusX = 2
     radiusY = 2
     
-    t0=time()
-    DiffImg = np.zeros((SphericalRing.shape[0],SphericalRing.shape[1]),dtype=np.float32)
-    # DiffImg = cp.zeros((SphericalRing.shape[0],SphericalRing.shape[1]),dtype=np.float32)
+    # t0=time()
+    # DiffImg = np.zeros((SphericalRing.shape[0],SphericalRing.shape[1]),dtype=np.float32)
     
     # nFixedKeyPts = 1024
     nFixedKeyPts = 1024
@@ -213,14 +212,20 @@ def GetKeyPtsByAE(SphericalRing, GridCounter, RespondImg):
     candidates_indices_ = candidates_indices[finalMask_1D]
     candidates_indices_2D_ = np.unravel_index(cp.asnumpy(candidates_indices_), MinDiffMap_.shape)
     
+    candidates_2D = np.c_[candidates_indices_2D_[0],candidates_indices_2D_[1]]
     
-    KeyPts = SphericalRing[candidates_indices_2D_[0],candidates_indices_2D_[1],:]
+    candidates_2D = candidates_2D[candidates_2D[:,0]>=Size4FilterTopEdge,:]
+    candidates_2D = candidates_2D[candidates_2D[:,0]<nLines-Size4FilterTopEdge,:]
+    candidates_2D = candidates_2D[candidates_2D[:,1]>=Size4FilterTopEdge,:]
+    candidates_2D = candidates_2D[candidates_2D[:,1]<ImgW-CropWidth_SphericalRing-Size4FilterTopEdge,:]
+    
+    KeyPts = SphericalRing[candidates_2D[:,0],candidates_2D[:,1],:]
     KeyPts = KeyPts[-nFixedKeyPts-1:-1,0:3]
     
-    KeyPixels = []
+    KeyPixels = candidates_2D[-nFixedKeyPts-1:-1,:]
     PlanarPts = []
     
-    t1=time()
+    # t1=time()
     
     # KeyPts = []
     # for i in range(candidates_indices.shape[0]-1,-1,-1):
@@ -287,9 +292,9 @@ def GetKeyPtsByAE(SphericalRing, GridCounter, RespondImg):
     PlanarPts = np.array(PlanarPts, dtype=np.float32)
     assert KeyPts.shape[0] > 50 #and PlanarPts.shape[0] > 1000
     
-    t2=time()
-    print(round(t1-t0, 4), 's, cupy time')
-    print(round(t2-t1, 4), 's, for loop time')
+    # t2=time()
+    # print(round(t1-t0, 4), 's, cupy time')
+    # print(round(t2-t1, 4), 's, for loop time')
     return KeyPts, KeyPixels, PlanarPts#, DiffImg
 
 
@@ -303,8 +308,8 @@ def ExtendKeyPtsInShpericalRing(SphericalRing, GridCounter, KeyPixels):
         iX = KeyPixels[iPixel,0]
         iY = KeyPixels[iPixel,1]
         # extract neighbors
-        oneNeighbors = SphericalRing[iX-nNeighborRadius:iX+nNeighborRadius_, iY-nNeighborRadius:iY+nNeighborRadius_, 0:3]
         oneMask = GridCounter[iX-nNeighborRadius:iX+nNeighborRadius_, iY-nNeighborRadius:iY+nNeighborRadius_]
+        oneNeighbors = SphericalRing[iX-nNeighborRadius:iX+nNeighborRadius_, iY-nNeighborRadius:iY+nNeighborRadius_, 0:3]
         pts = oneNeighbors[oneMask>0]
         oneMask[:] = 0  # set zeros using address
         
