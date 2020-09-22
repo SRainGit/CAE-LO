@@ -305,8 +305,8 @@ if __name__ == "__main__":
     
     import os
     import tensorflow as tf
-    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-    gpus = tf.config.experimental.list_physical_devices('GPU')    
+    os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+    gpus = tf.config.experimental.list_physical_devices('GPU')
     tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4096)])
     import keras
     from keras.models import load_model
@@ -323,23 +323,28 @@ if __name__ == "__main__":
         if bLoadKeyPtsFromFile == False:        
             RespondLayer = load_model('SphericalRingPCRespondLayer.h5')
             KeyPts0, KeyPixels0, PlanarPts0 = GetKeyPtsFromRawFileName(FileName0, RespondLayer)
-            KeyPts1, KeyPixels1, PlanarPts1 = GetKeyPtsFromRawFileName(FileName1, RespondLayer)
+            KeyPts1, KeyPixels1, PlanarPts1 = GetKeyPtsFromRawFileName(FileName1, RespondLayer)            
+            t2=time()
+            print(round(t2-t0, 2), 's, Loading Data + Geting KeyPts')
             
         KeyPts0, PatchesList0 = GetPatchesList(KeyPts0, AllVoxels00, AllVoxels01, AllVoxels02)
         KeyPts1, PatchesList1 = GetPatchesList(KeyPts1, AllVoxels10, AllVoxels11, AllVoxels12)            
         print('nKeyPts0 =', KeyPts0.shape[0])    
-        print('nKeyPts1 =', KeyPts1.shape[0])    
+        print('nKeyPts1 =', KeyPts1.shape[0])
+        t3=time()
+        print(round(t3-t2, 2), 's, Geting PatchesList')
         Features0 = GetFeaturesFromPatches(PatchEncoder, PatchesList0)
         Features1 = GetFeaturesFromPatches(PatchEncoder, PatchesList1)
         Weights0 = np.ones((KeyPts0.shape[0],1),dtype=np.float32)
-        Weights1 = np.ones((KeyPts1.shape[0],1),dtype=np.float32)    
+        Weights1 = np.ones((KeyPts1.shape[0],1),dtype=np.float32)
+        t4=time()
+        print(round(t4-t3, 2), 's, Geting Features')
         
     else:        
         KeyPts0, Features0, Weights0 = LoadKeyPtsAndFeatures(FileName0)
         KeyPts1, Features1, Weights1 = LoadKeyPtsAndFeatures(FileName1)
-        
-    t2=time()
-    print(round(t2-t0, 2), 's, Geting KeyPts')
+        t2=time()
+        print(round(t2-t0, 2), 's, Loading Data + Geting KeyPts and Features')
     
     R, T, score, inliersIdx0, inliersIdx1, residualThreshold = SolveRelativePose(KeyPts0, Features0, Weights0, KeyPts1, Features1, Weights1)
     pairs0 = KeyPts0[inliersIdx0,:]

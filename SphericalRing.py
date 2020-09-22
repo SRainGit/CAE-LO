@@ -402,20 +402,20 @@ def GetKeyPtsFromRawFileName(rawFileFullPath, RespondLayer):
     DataFileName = os.path.basename(rawFileFullPath)+'.mat'
     DataFullPath = os.path.join(SphericalRingDir, DataFileName)
     
-    t0=time()
+    # t0=time()
     mat = io.loadmat(DataFullPath)
     SphericalRing = mat['SphericalRing']
     GridCounter = mat['GridCounter']
     
     # process
-    t1=time()
+    # t1=time()
     SphericalRing_ = SphericalRing[0:nLines, 0:ImgW-CropWidth_SphericalRing,Channels4AE]
     SphericalRing_ = SphericalRing_.reshape(1, SphericalRing_.shape[0], SphericalRing_.shape[1], SphericalRing_.shape[2])
     RespondImg = RespondLayer.predict(SphericalRing_)
     RespondImg = np.squeeze(RespondImg)
-    t2=time()
-    print(round(t1-t0, 4), 's, data loading time')
-    print(round(t2-t1, 4), 's, predicting time')
+    # t2=time()
+    # print(round(t1-t0, 4), 's, data loading time')
+    # print(round(t2-t1, 4), 's, predicting time')
     
     
     KeyPts, KeyPixels, PlanarPts = GetKeyPtsByAE(SphericalRing, GridCounter, RespondImg)

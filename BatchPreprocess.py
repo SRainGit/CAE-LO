@@ -204,7 +204,7 @@ def BatchPorcess(iOption):
             nSubFrames = subFrames.shape[0]
             
             flags4MultiProc = manager.list([])
-            nThreads = 4
+            nThreads = 8
             FrameLists = []
             for iList in range(nThreads):
                 slices = slice(iList,nSubFrames,nThreads)

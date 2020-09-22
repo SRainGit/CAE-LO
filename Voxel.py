@@ -193,18 +193,21 @@ def GetPatchesList(Pts, AllVoxels0, AllVoxels1, AllVoxels2):
     
         patchVoxels = AllVoxelsList[iScale][indices,:]
         
-        for iPt in range(Pts_.shape[0]):
-            nbrVoxels = patchVoxels[iPt,:,:] - KeyVoxels[iPt,:]
-            idxX_ = (nbrVoxels[:,0] >= -PatchRadius)
-            idxX = (nbrVoxels[:,0] < PatchRadius)
-            idxY_ = (nbrVoxels[:,1] >= -PatchRadius)
-            idxY = (nbrVoxels[:,1] < PatchRadius)
-            idxZ_ = (nbrVoxels[:,2] >= -PatchRadius)
-            idxZ = (nbrVoxels[:,2] < PatchRadius)
-            avlIdx = idxX_*idxX*idxY_*idxY*idxZ_*idxZ
-            aVoxels_ = nbrVoxels[avlIdx,:]
-            for iVoxel in range(aVoxels_.shape[0]):
-                PatchesList[iScale][iPt,aVoxels_[iVoxel,0],aVoxels_[iVoxel,1],aVoxels_[iVoxel,2],0] = 1
+        KeyVoxels_ = np.expand_dims(KeyVoxels, axis=1)
+        KeyVoxels_ = np.tile(KeyVoxels_, (1,n_neighbors,1))
+        nbrVoxels = patchVoxels - KeyVoxels_
+        
+        idxX_ = (nbrVoxels[:,:,0] >= -PatchRadius)
+        idxX = (nbrVoxels[:,:,0] < PatchRadius)
+        idxY_ = (nbrVoxels[:,:,1] >= -PatchRadius)
+        idxY = (nbrVoxels[:,:,1] < PatchRadius)
+        idxZ_ = (nbrVoxels[:,:,2] >= -PatchRadius)
+        idxZ = (nbrVoxels[:,:,2] < PatchRadius)
+        avlIdx = idxX_*idxX*idxY_*idxY*idxZ_*idxZ
+        
+        for iVoxel in range(KeyVoxels.shape[0]):
+            aVoxels_ = nbrVoxels[iVoxel,avlIdx[iVoxel,:],:]
+            PatchesList[iScale][iVoxel,aVoxels_[:,0],aVoxels_[:,1],aVoxels_[:,2],0] = 1
    
     return Pts, PatchesList
 
