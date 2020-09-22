@@ -20,25 +20,24 @@ See the rankings in [KITTI](http://www.cvlibs.net/datasets/kitti/eval_odometry.p
 
 
 # Pre-release
-Thank you all for the interest. Pre-release-1.
+Thank you all for the interest. Pre-release-2.
 
-For the newers, I suggest you to wait for my formal release.
+For newers, I suggest you to wait for my formal release.
 
 
 # Usage
 1. Basic enviornments for python3 and Keras. Simple networks. No worries. Package requirements can be found in `requirements.txt`.
 2. `Dirs.py` to modify dictionaries.
-3. `BatchProcess.py` to do batch processings on projecting PC to spherical rings and getting keypts by using multi-thread.
+3. `BatchProcess.py` to do batch processings on projecting PC to spherical rings and getting keypts.
 4. `BatchVoxelization.py` to project PC into multi-solution voxel model and basic functions about multi-resolution model.
-5. `SphericalRing.py` to do basic function about spherical ring model, importantly for getting keypts by using trained model and cupy.
-6. You can try `Match.py` to see some demos using trained models
+5. `SphericalRing.py` to do basic function about spherical ring model, especially the function of getting keypts.
+6. You can try `Match.py` to see some demos using trained models.
 7. `PoseEstimation.py` to generate initial odometry.
 8. `RefinePoses.py` to generate refined odometry based on extended interest points and ground normals. (The code for generating ground normals is currently commented. Uncomment it if you want to use.)
-9. There are some other test codes I tried to find other solutions. You may get some new ideas I hope. I will remove them in the formal release.
 
 
 # Notes
 1. Generated interest points and features for sequence 00 and 01 can be found in [GoogleDrive](https://drive.google.com/open?id=1MATZrnTgBXeKmaIyC-x5dRHrZ6hX9Hl0).
 2. The extracting voxel patches part is slow, I will try to do some optimization.
-3. The data arragement format is simple. Just serveral folders of "KeyPts", "Features", "InliersIdx", "SphericalRing", etc.
+3. The data arragement format is simple. Just serveral folders like "KeyPts", "Features", "InliersIdx", "SphericalRing", etc.
 4. If you have any problems or confunsions, please post them in ISSUES or contact me by email.
