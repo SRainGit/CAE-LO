@@ -105,11 +105,11 @@ if __name__ == "__main__":
     validationFileList = matFileList[nTrain:len(matFileList)]
     
     
-    #TrainingBlocks = BatchInputData(trainingFileList[0:3], 192)
+    TrainingBlocks = BatchInputData(trainingFileList[0:3], 192)
     
     
     #-------------Autoendocer---------------------------------------------------------------------
-    bTrain = 0
+    bTrain = 1
     KS0 = 1
     KS1 = 3
     KS2 = 5
@@ -118,28 +118,28 @@ if __name__ == "__main__":
     nBatchFiles = nGPUs*16
     nRandDataPerFile = 64
     
-    ACTIVATION = 'linear'
-    ACTIVATION1 = 'linear'
-    ACTIVATION2 = 'relu'
+    ACT1 = 'linear'
+    ACT2 = 'relu'
     
     
     # feed
     if bTrain == 1:
         # Convolutional autoencoder
-        x = Input(shape=(nLines, ImgW-CropWidth_SphericalRing, len(Channels4AE)))
+        # x = Input(shape=(nLines, ImgW-CropWidth_SphericalRing, len(Channels4AE)))
+        x = Input(shape=(None, None, len(Channels4AE)))
         
         # Encoder
-        conv1_1 = Conv2D(filters=32, kernel_size=(KS1, KS1), strides=1, activation=ACTIVATION2, use_bias=True, padding='same')(x)
-        conv1_1_2 = Conv2D(filters=8, kernel_size=(KS0, KS0), strides=1, activation=ACTIVATION2, use_bias=True, padding='same')(conv1_1)
+        conv1_1 = Conv2D(filters=32, kernel_size=(KS1, KS1), strides=1, activation=ACT2, use_bias=True, padding='same')(x)
+        conv1_1_2 = Conv2D(filters=8, kernel_size=(KS0, KS0), strides=1, activation=ACT2, use_bias=True, padding='same')(conv1_1)
         pool1 = MaxPooling2D(pool_size=(2, 2), strides=2, padding='same')(conv1_1_2)
-        conv1_2 = Conv2D(filters=16, kernel_size=(KS1, KS1), strides=1, activation=ACTIVATION2, use_bias=True, padding='same')(pool1)
+        conv1_2 = Conv2D(filters=16, kernel_size=(KS1, KS1), strides=1, activation=ACT2, use_bias=True, padding='same')(pool1)
         pool2 = MaxPooling2D(pool_size=(2, 2), strides=2, padding='same')(conv1_2)
         
-        conv2_2 = Conv2D(filters=16, kernel_size=(KS1, KS1), strides=1, activation=ACTIVATION2, use_bias=True, padding='same')(pool2)
+        conv2_2 = Conv2D(filters=16, kernel_size=(KS1, KS1), strides=1, activation=ACT2, use_bias=True, padding='same')(pool2)
         up2 = UpSampling2D(size=(2, 2))(conv2_2)
-        conv2_3 = Conv2D(filters=8, kernel_size=(KS1, KS1), strides=1, activation=ACTIVATION2, use_bias=True, padding='same')(up2)
+        conv2_3 = Conv2D(filters=8, kernel_size=(KS1, KS1), strides=1, activation=ACT2, use_bias=True, padding='same')(up2)
         up3 = UpSampling2D(size=(2, 2))(conv2_3)
-        r = Conv2D(filters=len(Channels4AE), kernel_size=(KS0, KS0), strides=1, activation=ACTIVATION1, use_bias=True, padding='same')(up3)
+        r = Conv2D(filters=len(Channels4AE), kernel_size=(KS0, KS0), strides=1, activation=ACT1, use_bias=True, padding='same')(up3)
         
         autoencoder = Model(inputs=x, outputs=r)
         RespondLayer = Model(x, conv1_1_2)
@@ -151,28 +151,25 @@ if __name__ == "__main__":
         
         autoencoder.summary()
         from keras.utils import plot_model
-        plot_model(autoencoder, show_shapes=1, to_file='AE4SpericalRingPC.png')
-        #
-        #SVG(model_to_dot(autoencoder).create(prog='dot', format='svg'))
+        plot_model(autoencoder, show_shapes=1, to_file='./TrainedModels/AE4SphericalRingPC.png')
         
-        weights_r = autoencoder.layers[4].get_weights()
     
         history = parallel_model.fit_generator(YieldBatchData(trainingFileList, nBatchFiles, nRandDataPerFile), 
     #    history = autoencoder.fit_generator(YieldBatchData(trainingFileList, nBatchFiles, nRandDataPerFile), 
                                                steps_per_epoch = len(trainingFileList)/nBatchFiles,
                                                epochs = epochs, 
-                                               max_queue_size = 10,
+                                               max_queue_size = 50,
                                                validation_data = YieldBatchData(validationFileList, nBatchFiles, nRandDataPerFile),
                                                validation_steps = len(validationFileList)/nBatchFiles,
-                                               workers = 2, 
+                                               workers = 6, 
                                                use_multiprocessing = True,
                                                shuffle = True)
         
         # save model
-        autoencoder.save(strRespondNetModelPath)
+        autoencoder.save('./TrainedModels/AE4SphericalRingPC.h5')
         RespondLayer.save(strRespondNetModelPath)
     else:
-        autoencoder = load_model(strRespondNetModelPath)
+        autoencoder = load_model('./TrainedModels/AE4SphericalRingPC.h5')
         RespondLayer = load_model(strRespondNetModelPath)
     
     
@@ -180,7 +177,7 @@ if __name__ == "__main__":
         WindowSize = 5
         WindowRadius = int(WindowSize/2)
         
-        NormDiffThreshold = 10.0
+        NormDiffThreshold = 2.0
         
         
         keyPts = []
@@ -205,7 +202,7 @@ if __name__ == "__main__":
             
         print('cntKeyPixels =', len(keyPts))
         keyPts = np.array(keyPts, dtype=np.float32)
-        return 1, keyPts
+        return keyPts
     
     
     
@@ -219,7 +216,7 @@ if __name__ == "__main__":
         encodedModels = RespondLayer.predict(testingModels)
         encodedModel = encodedModels[iTestModel,:,:,:]
         RespondImage = LA.norm(encodedModel, axis=2)
-        KeyPixelsImage, keyPts = GetKeyPixelsAndKeyPts(encodedModel, testModel)
+        keyPts = GetKeyPixelsAndKeyPts(encodedModel, testModel)
         
         decodedModels = autoencoder.predict(testingModels)
         decodedModel = decodedModels[iTestModel,:,:,:]
@@ -248,11 +245,7 @@ if __name__ == "__main__":
         fig = mlab.figure(bgcolor=(0, 0, 0), size=(1640, 500))
         mlab.imshow(RespondImage)    
         mlab.view(270, 0, 1800, [0,0,0])
-        
-        fig = mlab.figure(bgcolor=(0, 0, 0), size=(1640, 500))
-        mlab.imshow(KeyPixelsImage)    
-        mlab.view(270, 0, 1200, [0,0,0])
-        
+                
         fig = mlab.figure(bgcolor=(0, 0, 0), size=(1640, 1500))
         node = mayavi.mlab.points3d(decodedPC[:,0], decodedPC[:,1], decodedPC[:,2], mode="point", figure=fig)
         
