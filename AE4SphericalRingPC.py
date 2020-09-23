@@ -6,7 +6,6 @@ Created on Wed Jun 19 15:35:48 2019
 @author: rain
 """
 
-
 import os
 import math
 import numpy as np
@@ -170,11 +169,11 @@ if __name__ == "__main__":
                                                shuffle = True)
         
         # save model
-        autoencoder.save('AE4SphericalRingPC.h5')
-        RespondLayer.save('SphericalRingPCRespondLayer.h5')
+        autoencoder.save(strRespondNetModelPath)
+        RespondLayer.save(strRespondNetModelPath)
     else:
-        autoencoder = load_model('AE4SphericalRingPC.h5')
-        RespondLayer = load_model('SphericalRingPCRespondLayer.h5')
+        autoencoder = load_model(strRespondNetModelPath)
+        RespondLayer = load_model(strRespondNetModelPath)
     
     
     def GetKeyPixelsAndKeyPts(EncodedModel, SphericalImage):

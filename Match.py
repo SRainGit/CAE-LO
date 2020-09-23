@@ -310,7 +310,7 @@ if __name__ == "__main__":
     tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4096)])
     import keras
     from keras.models import load_model
-    PatchEncoder = load_model('EncoderModel4VoxelPatch.h5')
+    PatchEncoder = load_model(strVoxelPatchEncoderPath)
     
     t0=time()
     
@@ -321,7 +321,7 @@ if __name__ == "__main__":
         print(round(t1-t0, 2), 's, Loading Data')
         
         if bLoadKeyPtsFromFile == False:        
-            RespondLayer = load_model('SphericalRingPCRespondLayer.h5')
+            RespondLayer = load_model(strRespondNetModelPath)
             KeyPts0, KeyPixels0, PlanarPts0 = GetKeyPtsFromRawFileName(FileName0, RespondLayer)
             KeyPts1, KeyPixels1, PlanarPts1 = GetKeyPtsFromRawFileName(FileName1, RespondLayer)            
             t2=time()

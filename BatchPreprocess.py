@@ -6,7 +6,6 @@ Created on Sun Mar  3 11:06:49 2019
 @author: rain
 """
 
-
 import os
 from multiprocessing import Process, Manager, freeze_support
 from scipy import io
@@ -40,7 +39,7 @@ def BatchProjection(strSequence, Frames, iProc,  iThread, flags4MultiProc):
     rawDataFolderName = 'velodyne'
     TargetFolderName = 'SphericalRing'
     rawDataDir = os.path.join(strDataBaseDir, strSequence, rawDataFolderName)
-    rawDataList = GetFileList(strDataBaseDir+strSequence)
+    rawDataList = GetFileList(os.path.join(strDataBaseDir, strSequence))
     rawDataList = [oneFile for oneFile in rawDataList if oneFile[(len(oneFile)-3):len(oneFile)]=='bin']
     nFramesInSequence = len(rawDataList)
     
@@ -134,14 +133,10 @@ def BatchGetKeyPts(strSequence, FrameList, SphericalRings, GridCounters, Respond
         RespondImg = RespondImgs[iData,:,:,:]
         
         # extract key points
-        KeyPts, KeyPixels, PlanarPts = GetKeyPtsByAE(SphericalRing, GridCounter, RespondImg)        
-#        # extract features of the key points
-#        Features = GetFeaturesFromSphericalRing(RespondImg, KeyPixels)
-#        Weights = np.ones((KeyPts.shape[0],1),dtype=np.float32)
+        KeyPts, KeyPixels, PlanarPts = GetKeyPtsByAE(SphericalRing, GridCounter, RespondImg)
         
         # extend key points for the final pose refine
-        ExtendedKeyPts = ExtendKeyPtsInShpericalRing(SphericalRing, GridCounter, KeyPixels)
-        
+        ExtendedKeyPts = ExtendKeyPtsInShpericalRing(SphericalRing, GridCounter, KeyPixels)        
         
         # save key points
         keyPtDir = os.path.join(strDataBaseDir, strSequence, KeyPtFolderName)      
@@ -153,35 +148,28 @@ def BatchGetKeyPts(strSequence, FrameList, SphericalRings, GridCounters, Respond
         io.savemat(ketPtFullPath, {'KeyPts':KeyPts, 'ExtendedKeyPts':ExtendedKeyPts, 'PlanarPts':PlanarPts})
         print(strSequence, ':', nFramesInSequence, ':', iFrame, '\n', ketPtFullPath)
         
-#        # save features
-#        featuresDir = os.path.join(strDataBaseDir, strSequence, FeaturesFolderName)      
-#        isFolder = os.path.exists(featuresDir)
-#        if not isFolder:
-#            os.makedirs(featuresDir)                    
-#        fileName = str(iFrame).zfill(6)+'.bin.mat'        
-#        featuresFullPath = os.path.join(featuresDir, fileName)
-#        io.savemat(featuresFullPath, {'KeyPts':KeyPts, 'Features':Features, 'Weights':Weights})
-#        print(strSequence, ':', nFramesInSequence, ':', iFrame, '\n', featuresFullPath)
         
     flags4MultiProc[iThread] = 1
 
 
 def BatchPorcess(iOption):
     manager = Manager()
+    nThreads = 10
+            
     if iOption == 2:
         os.environ["CUDA_VISIBLE_DEVICES"] = "0"    
         import tensorflow as tf
         from keras.backend.tensorflow_backend import set_session
         config = tf.ConfigProto()
-        config.gpu_options.per_process_gpu_memory_fraction = 0.4
+        config.gpu_options.per_process_gpu_memory_fraction = 0.5
         set_session(tf.Session(config=config))
         import keras
         from keras.models import load_model
-        RespondLayer = load_model('SphericalRingPCRespondLayer.h5')
+        RespondLayer = load_model(strRespondNetModelPath)
     
-    for iSequence in range(9, 11, 1):
+    for iSequence in range(0, 11, 1):
         strSequence=str(iSequence).zfill(2)
-        dirSequence=str(os.path.join(strDataBaseDir, strSequence))
+        dirSequence=os.path.join(strDataBaseDir, strSequence)
         rawDataList = GetFileList(dirSequence)
         rawDataList = [oneFile for oneFile in rawDataList if oneFile[(len(oneFile)-3):len(oneFile)]=='bin']
         nFiles = len(rawDataList)
@@ -204,7 +192,6 @@ def BatchPorcess(iOption):
             nSubFrames = subFrames.shape[0]
             
             flags4MultiProc = manager.list([])
-            nThreads = 8
             FrameLists = []
             for iList in range(nThreads):
                 slices = slice(iList,nSubFrames,nThreads)
@@ -250,7 +237,7 @@ if __name__ == "__main__":
     import multiprocessing as mp
     mp.set_start_method('spawn')
     
-    # BatchPorcess(2)
+    BatchPorcess(2)
        
     
     #----------------(for test at first) Visualization of Voxelmodel---------------------------------------------
@@ -268,7 +255,7 @@ if __name__ == "__main__":
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"
     import keras
     from keras.models import load_model
-    RespondLayer = load_model('SphericalRingPCRespondLayer.h5')
+    RespondLayer = load_model(strRespondNetModelPath)
     
     
     # prediction

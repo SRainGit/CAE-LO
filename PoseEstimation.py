@@ -70,7 +70,7 @@ def KeyPtsDataGenerator(isLoadFeaturesFromFile, iKeyPtSource, DataDir, listKeyPt
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"
     import keras
     from keras.models import Model, load_model
-    PatchEncoder = load_model('EncoderModel4VoxelPatch.h5')
+    PatchEncoder = load_model(strVoxelPatchEncoderPath)
     
     fileList = os.listdir(RawDataDir)
     nFrames = len(fileList)

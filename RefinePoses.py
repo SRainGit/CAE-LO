@@ -77,7 +77,7 @@ def ReExtractFeatures(strSequence, iFrame, iniR, iniT):
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"
     import keras
     from keras.models import Model, load_model
-    PatchEncoder = load_model('EncoderModel4VoxelPatch.h5')
+    PatchEncoder = load_model(strVoxelPatchEncoderPath)
     
     # load raw PC data and corresponding key points data
     PC = LoadPC(strSequence, iFrame)
@@ -536,7 +536,7 @@ AllErrorTs = np.zeros((1,1), dtype=np.float32)
 
 #   0, 2     2, 5     5, 8    8, 11    11, 14    14, 18     18, 20     20, 22
 # prepare data path
-for iSequence in range(0, 5, 1):
+for iSequence in range(0, 11, 1):
     strSequence = str(iSequence).zfill(2)
     RawDataDir = os.path.join(strDataBaseDir, strSequence, 'velodyne')+'/'
     KeyPtsDir = os.path.join(strDataBaseDir, strSequence, 'KeyPts')+'/'

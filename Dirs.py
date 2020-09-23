@@ -26,6 +26,9 @@ strClosedPosesDir = os.path.join(strBaseDir, 'poses____')
 strDataBaseDir = os.path.join(strBaseDir, 'velodyne', 'sequences')
 strCalibDataDir = os.path.join(strBaseDir, 'calib')
 
+strRespondNetModelPath = './TrainedModels/SphericalRingPCRespondLayer.h5'
+strVoxelPatchEncoderPath = './TrainedModels/EncoderModel4VoxelPatch.h5'
+
 
 
 

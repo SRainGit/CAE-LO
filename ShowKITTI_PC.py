@@ -5,8 +5,6 @@ Created on Mon Feb 25 09:37:34 2019
 
 @author: rain
 """
-# https://blog.csdn.net/weixin_39999955/article/details/83819196
-
 
 import numpy as np
 import mayavi.mlab

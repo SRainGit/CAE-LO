@@ -11,29 +11,33 @@ from numpy import linalg as LA
 import copy
 from sklearn.neighbors import NearestNeighbors
 
-# parameters for voxel
+# parameters for voxel models
 VoxelSize = 0.02 # meter
+PatchSize = 16
+BlockRealSize = 1.28  # meter, VoxelSize*64
+
 VisibleLength = 100
 VisibleWidth = 100
 VisibleHeight = 15
-VisibleBottom = 10
+
 Scales = int(3)
 ScaleRatios = [1, 8, 32]
+
+nLeastVoxelsInOneBlock = 5
+BlockEdgeWidth = 1
+nNeighborBlocks = 1
+
+
 VoxelSizes = [VoxelSize, VoxelSize*ScaleRatios[1], VoxelSize*ScaleRatios[2]]
 HalfVoxelSizes = [i/2 for i in VoxelSizes]
 
 # parameters for voxel patch
-PatchSize = 16
 PatchRadius = int(PatchSize/2)
 nLeastPtsInOnePatch = 1
 
 
 # parameters for block
-BlockRealSize = 1.28  # meter, VoxelSize*64
 BlockSize = int(BlockRealSize/VoxelSize)
-nLeastVoxelsInOneBlock = 5
-BlockEdgeWidth = 1
-nNeighborBlocks = 1
 CropBlocks = int(ScaleRatios[2]*PatchRadius/BlockSize)  # to ensure the crop safty of VoxelModel2 in sacle 2
 nBlocksL = int(2*VisibleLength/BlockRealSize)
 nBlocksW = int(2*VisibleWidth/BlockRealSize)
@@ -101,7 +105,7 @@ def Voxelization(PC):
     AllVoxels = []
     VoxelModel1 = np.zeros((int(nBlocksL*BlockSize/ScaleRatios[1]),int(nBlocksW*BlockSize/ScaleRatios[1]),int(nBlocksH*BlockSize/ScaleRatios[1])), dtype=np.int8)
     VoxelModel2 = np.zeros((int(nBlocksL*BlockSize/ScaleRatios[2]),int(nBlocksW*BlockSize/ScaleRatios[2]),int(nBlocksH*BlockSize/ScaleRatios[2])), dtype=np.int8)
-    assert max(VoxelModel1.shape[0],VoxelModel1.shape[0]) < 30000  # to make sure the size is smaller than int16 
+    assert max(VoxelModel1.shape[0],VoxelModel1.shape[1]) < 30000  # to make sure the size is smaller than int16 
     
     AllVoxels0 = []
     AllVoxels1 = []

@@ -5,8 +5,6 @@ Created on Sun Mar  3 11:06:49 2019
 
 @author: rain
 """
-# https://blog.csdn.net/weixin_39999955/article/details/83819196
-
 
 import os
 from multiprocessing import Process, Manager, freeze_support
@@ -71,14 +69,14 @@ def BatchVoxelization(fileList, iThread, flags4MultiProc):
 def Porcess():
     manager = Manager()
     
-    for iSequence in range(8,22,1):
+    for iSequence in range(0,11,1):
         strSequence=str(iSequence).zfill(2)
-        dirSequence=str(strDataBaseDir+strSequence)
+        dirSequence=os.path.join(strDataBaseDir, strSequence)
         rawDataList=GetFileList(dirSequence)
         rawDataList = [oneFile for oneFile in rawDataList if oneFile[(len(oneFile)-3):len(oneFile)]=='bin']
                 
         flags4MultiProc = manager.list([])
-        nThreads = 11
+        nThreads = 6
         rawDataLists=[]
         for iList in range(nThreads):
             rawDataLists.append(rawDataList[iList:len(rawDataList):nThreads])

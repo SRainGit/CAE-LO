@@ -6,7 +6,6 @@ Created on Mon Feb 25 09:37:34 2019
 @author: rain
 """
 
-
 import os
 import math
 import numpy as np
@@ -180,7 +179,6 @@ ACTIVATION1 = 'sigmoid'
 ACTIVATION2 = 'tanh'
 ACTIVATION3 = 'relu'
 
-FileName = 'EncoderModel4VoxelPatch.h5'
 
 # feed
 if bTrain == 1:
@@ -234,11 +232,11 @@ if bTrain == 1:
                                            shuffle = True)
     
     # save model
-    autoencoder.save('AutoencoderModel4VoxelPatch.h5')
-    encoder.save(FileName)
+    autoencoder.save('./TrainedModels/AutoencoderModel4VoxelPatch.h5')
+    encoder.save(strVoxelPatchEncoderPath)
 else:
-    autoencoder = load_model('AutoencoderModel4VoxelPatch.h5')
-    encoder = load_model(FileName)
+    autoencoder = load_model('./TrainedModels/AutoencoderModel4VoxelPatch.h5')
+    encoder = load_model(strVoxelPatchEncoderPath)
 
 
 iTestModel=0

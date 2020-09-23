@@ -24,51 +24,49 @@ import cupy as cp
 
 from Voxel import *
 
+# fixed parameters
 degree2radian =  math.pi / 180
 NumChannels = 5
 Channels4AE = [0,1,2]
 
-# specifications of Velodyne-64
+
+# Velodyne64
 nLines = 64
+AzimuthResolution = 0.20 # degree
+VerticalViewDown = -24.8
+VerticalViewUp = 2.0
+VisibleBottom = 10  # for filering out near interest points
+VisibleRange = 100  # manually set (m)
+SafeEdgeWidth4Top = 5
+CropWidth_SphericalRing = 8
+Size4FilterTopEdge = 8
+
+
+
+# specifications of Velodyne-64
 AzimuthView = 360 * degree2radian
-AzimuthResolution = 0.20 * degree2radian  # the original resolution is 0.18
-VerticalViewDown = -24.8 * degree2radian
-VerticalViewUp = 2.0 * degree2radian
+AzimuthResolution = AzimuthResolution * degree2radian  # the original resolution is 0.18
+VerticalViewDown = VerticalViewDown * degree2radian
+VerticalViewUp = VerticalViewUp * degree2radian
 VerticalResolution = (VerticalViewUp - VerticalViewDown) / (nLines - 1)
 VerticalPixelsOffset = -VerticalViewDown / VerticalResolution
-VisibleRange = 100  # manually set (m)
 
 
-# parameters for projection image
-SafeEdgeWidth4Top = 5
+# parameters for spherical ring's bounds
 ImgH = nLines + SafeEdgeWidth4Top
 ImgW = int(AzimuthView / AzimuthResolution)
 ImgBottomLine = ImgH - VerticalPixelsOffset
-CropWidth_SphericalRing = 8
-
-
-nLeastPtsInOnePatch = 1
 
 AllPixelIndexList = []
 for iX in range(ImgH):
     for iY in range(ImgW):
         AllPixelIndexList.append([iX,iY])
 AllPixelIndexes_WithoutWindowEdge = []
-Size4FilterTopEdge = 8
 for iX in range(Size4FilterTopEdge, nLines-Size4FilterTopEdge,1):
     for iY in range(Size4FilterTopEdge, ImgW-CropWidth_SphericalRing-Size4FilterTopEdge, 1):
         AllPixelIndexes_WithoutWindowEdge.append([iX,iY])
 AllPixelIndexes_WithoutWindowEdge = np.array(AllPixelIndexes_WithoutWindowEdge, dtype=np.int32)
 
-
-lPixelIndex3_WithoutEdge = []
-IMGH3 = 16
-IMGW3 = 448
-Edge3 = 1
-for iX in range(Edge3, IMGH3-Edge3,1):
-    for iY in range(Edge3, IMGW3-Edge3, 1):
-        lPixelIndex3_WithoutEdge.append([iX,iY])
-aPixelIndex3_WithoutEdge = np.array(lPixelIndex3_WithoutEdge, dtype=np.int32)
 
 
 def ProjectPC2SphericalRing(PC):
@@ -96,22 +94,17 @@ def ProjectPC2SphericalRing(PC):
     return Image_float, GridCounter
 
 
+
 def LocateKeyPixels(NormImage, WindowRadius, AvlPixelList):
-    WindowRadius_ = WindowRadius + 1
-    
-    KeyPixelList = []
-    
+    WindowRadius_ = WindowRadius + 1    
+    KeyPixelList = []    
     for iPixel in range(AvlPixelList.shape[0]):
         iX = AvlPixelList[iPixel,0]
-        iY = AvlPixelList[iPixel,1]
-    
-        patch = NormImage[iX-WindowRadius:iX+WindowRadius_, iY-WindowRadius:iY+WindowRadius_]
-        
-        maxVal = np.max(patch)
-        
+        iY = AvlPixelList[iPixel,1]    
+        patch = NormImage[iX-WindowRadius:iX+WindowRadius_, iY-WindowRadius:iY+WindowRadius_]        
+        maxVal = np.max(patch)        
         if NormImage[iX,iY] >= maxVal:
-            KeyPixelList.append([iX,iY])
-        
+            KeyPixelList.append([iX,iY])        
     return KeyPixelList
     
     
