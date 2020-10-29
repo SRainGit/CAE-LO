@@ -33,5 +33,5 @@ See the rankings in [KITTI](http://www.cvlibs.net/datasets/kitti/eval_odometry.p
 # Notes
 1. Generated interest points and features for sequence 00 and 01 can be found in [GoogleDrive](https://drive.google.com/open?id=1MATZrnTgBXeKmaIyC-x5dRHrZ6hX9Hl0).
 2. The data arragement format is simple. Just serveral folders like "KeyPts", "Features", "InliersIdx", "SphericalRing", etc.
-3. Package PCLKeypoint in `PclkeyPts.py` can be installed from: https://github.com/lijx10/PCLKeypoints.
+3. Package PCLKeypoint in `PclKeyPts.py` can be installed from: https://github.com/lijx10/PCLKeypoints.
 4. If you have any problems or confunsions, please post them in ISSUES or contact me by email.
