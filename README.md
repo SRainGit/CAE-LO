@@ -32,7 +32,7 @@ See the rankings in [KITTI](http://www.cvlibs.net/datasets/kitti/eval_odometry.p
 
 # Notes
 1. Generated interest points and features for sequence 00 and 01 can be found in [GoogleDrive](https://drive.google.com/open?id=1MATZrnTgBXeKmaIyC-x5dRHrZ6hX9Hl0).
-2. The final refined odometry for sequence 00-10 can be found in [GoogleDrive](https://drive.google.com/file/d/1bayF_HDgZHo4gpu0vAIHNrjQhN1JHog-/view?usp=sharing).
-3. The data arragement format is simple. Just serveral folders like "KeyPts", "Features", "InliersIdx", "SphericalRing", etc.
+2. The final refined trajectories of sequence 00-10 can be found in [GoogleDrive](https://drive.google.com/file/d/1bayF_HDgZHo4gpu0vAIHNrjQhN1JHog-/view?usp=sharing).
+3. The data arragement format is simple. Just folders like "KeyPts", "Features", "InliersIdx", "SphericalRing", etc.
 4. Package PCLKeypoint in `PclKeyPts.py` can be installed from: https://github.com/lijx10/PCLKeypoints.
 5. If you have any problems or confunsions, please post them in ISSUES or contact me by email.
